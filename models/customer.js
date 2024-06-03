@@ -14,19 +14,27 @@ class Customer {
     this.notes = notes;
   }
 
+  
   /** find all customers. */
 
   static async all() {
-    const results = await db.query(
-      `SELECT id, 
-         first_name AS "firstName",  
-         last_name AS "lastName", 
-         phone, 
-         notes
-       FROM customers
-       ORDER BY last_name, first_name`
-    );
-    return results.rows.map(c => new Customer(c));
+    console.log('Querying db...')
+    try {
+      const results = await db.query(
+        `SELECT id, 
+          first_name AS "firstName",  
+          last_name AS "lastName", 
+          phone, 
+          notes
+        FROM customers
+        ORDER BY last_name, first_name`
+      );
+      console.log('done...')
+      return results.rows.map(c => new Customer(c));
+    } catch (err) {
+      console.error(`Error querying db: ${err}`);
+      throw err // rethrow the error after logging it
+    }
   }
 
   /** get a customer by ID. */
@@ -78,6 +86,23 @@ class Customer {
       );
     }
   }
+  
+  /** Search customer by name */
+  static async searchByName(name) {
+    const result = await db.query(
+      `SELECT id, first_name AS "firstName", last_name AS "lastName"
+       FROM customers
+       WHERE first_name ILIKE $1 OR last_name ILike $1`,
+       [`%${name}%`]
+    );
+    return result.rows.map(c => new Customer(c))
+  }
+  
+  /** Get the full name of a customer */
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`
+  }
+
 }
 
 module.exports = Customer;

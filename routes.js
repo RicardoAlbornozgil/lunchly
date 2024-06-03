@@ -1,19 +1,22 @@
 /** Routes for Lunchly */
 
 const express = require("express");
+const router = new express.Router();
 
 const Customer = require("./models/customer");
 const Reservation = require("./models/reservation");
 
-const router = new express.Router();
 
 /** Homepage: show list of customers. */
 
 router.get("/", async function(req, res, next) {
   try {
+    console.log("Getting all customers");
     const customers = await Customer.all();
+    // console.log(customers);
     return res.render("customer_list.html", { customers });
   } catch (err) {
+    console.error('Error in / route:', err);
     return next(err);
   }
 });
@@ -98,6 +101,8 @@ router.post("/:id/add-reservation/", async function(req, res, next) {
     const numGuests = req.body.numGuests;
     const notes = req.body.notes;
 
+    // console.log(`${customerId}\n${startAt}\n${numGuests}\n${notes}`)
+
     const reservation = new Reservation({
       customerId,
       startAt,
@@ -108,6 +113,20 @@ router.post("/:id/add-reservation/", async function(req, res, next) {
 
     return res.redirect(`/${customerId}/`);
   } catch (err) {
+    return next(err);
+  }
+});
+
+/** Handle search bar queries */
+router.get('/search', async function(req, res, next) {
+  try {
+    console.log("/search handler intiated")
+    console.log(req.query.name);
+    const { name } = req.query.name;
+    console.log(name);
+    const customers = await Customer.searchByName(name);
+    res.render('customer_list.html', {customers});
+  } catch(err) {
     return next(err);
   }
 });

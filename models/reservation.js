@@ -38,6 +38,21 @@ class Reservation {
 
     return results.rows.map(row => new Reservation(row));
   }
+
+  /**Save changes */
+  
+  async save() {
+    try {
+      await db.query(
+        `INSERT INTO reservations (customer_id, start_at, num_guests, notes)
+         VALUES ($1, $2, $3, $4)`,
+        [this.customerId, this.startAt, this.numGuests, this.notes]
+      );
+    } catch (err) {
+      throw new Error(`Error saving reservation: ${err.message}`);
+    }
+  }
+  
 }
 
 
