@@ -118,14 +118,15 @@ router.post("/:id/add-reservation/", async function(req, res, next) {
 });
 
 /** Handle search bar queries */
+
 router.get('/search', async function(req, res, next) {
+  console.log("/search handler intiated")
   try {
-    console.log("/search handler intiated")
     console.log(req.query.name);
-    const { name } = req.query.name;
+    const name  = req.query.name;
     console.log(name);
-    const customers = await Customer.searchByName(name);
-    res.render('customer_list.html', {customers});
+    const { customer } = await Customer.searchByName(name);
+    res.redirect(`/${customer.id}/`);
   } catch(err) {
     return next(err);
   }
